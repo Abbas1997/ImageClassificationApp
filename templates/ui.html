@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Fake Face Detection</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+        <style>
+            body {
+                box-sizing: border-box;
+                font-family: 'Roboto', sans-serif;
+            }
+            #hd {
+                height: 5vh;
+                font-size: 5vh;
+                font-weight: bold;
+            }
+            #nav {
+                border-style: 2px solid black;
+                border-radius: 4px;
+                background-color: #e6f2ff;
+                box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+            }
+            p {
+                font-weight: bold;
+            }
+            #flex1 {
+                display: flex;
+                flex-direction: row;
+            }
+            #real, #fake, #upload {
+                width: 33.3vw;
+            }
+            .images:hover {
+                box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+            }
+        </style>
+    </head>
+    <body>
+        <div id="nav">
+            <div id="hd">Fake Face Detection using Deep Learning</div>
+            <div><p>Reload page to get random images</p></div>
+        </div>
+        <div id = "flex1">
+            <div id="real">
+                <p>Real Faces</p>
+                <div id="r1">
+                    <img id = "r1i" src="">
+                    <p id="r1r"></p>
+                </div>
+                <div id="r2">
+                    <img id="r2i" src="">
+                    <p id="r2r"></p>
+                </div>
+            </div>
+            <div id="fake">
+                <p>Fake Faces</p>
+                <div class="card" id="f1">
+                    <img class="images" id="f1i" src="">
+                    <p id="f1r"></p></div>
+                <div  class="card" id="f2">
+                    <img id="f2i" class="images">
+                    <p id=f2r></p>
+                </div>
+            </div>
+            <div id="upload">
+                <p>Upload Image</p>
+                <input id="ub" type="file" accept=".jpg, .jpeg, .png">
+                <img id="ui" src="" height="256" width="256">
+                <p id="result"></p>
+            </div>
+        </div>
+        <script>
+
+            fetch('/rurls')
+            .then(response => response.json())
+            .then(result => {
+                fakeimg = document.createElement('img')
+                fakeimg.setAttribute('class', 'images')
+                fakeimg.src = 'static/fake/' + result.furl1
+                fakeimg.setAttribute('id', result.url1)
+                document.getElementById('f1i').src = fakeimg.src
+                document.getElementById('f1r').textContent = result.furl1r
+                document.getElementById('f2i').src = '/static/fake/' + result.furl2
+                document.getElementById('f2r').textContent = result.furl2r
+                document.getElementById('r1i').src = '/static/real/' + result.rurl1
+                document.getElementById('r1r').textContent = result.rurl1r
+                document.getElementById('r2i').src = '/static/real/' + result.rurl2
+                document.getElementById('r2r').textContent = result.rurl2r
+            })
+
+            document.getElementById('ub').addEventListener('input', picUploaded);
+            function picUploaded() {
+
+                var formData = new FormData();
+                var fileField = document.getElementById('ub');
+
+                formData.append('pic', fileField.files[0]);
+                document.getElementById('ui').src = URL.createObjectURL(fileField.files[0]);
+
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(result => {
+                    console.log(result.verdict)
+                    document.getElementById('result').textContent = result.verdict;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                })
+            }
+        </script>
+    </body>
+</html>
